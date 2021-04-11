@@ -18,7 +18,8 @@ ToolMain::ToolMain()
 	m_toolInputCommands.back		= false;
 	m_toolInputCommands.left		= false;
 	m_toolInputCommands.right		= false;
-	
+	m_toolInputCommands.mouseHori	= 0.0f;
+	m_toolInputCommands.mouseVert	= 0.0f;
 }
 
 
@@ -41,7 +42,7 @@ void ToolMain::onActionInitialise(HWND handle, int width, int height)
 	m_height	= height;
 	
 	m_d3dRenderer.Initialize(handle, m_width, m_height);
-
+	m_toolHandle = handle;
 	//database connection establish
 	int rc;
 	rc = sqlite3_open_v2("database/test.db",&m_databaseConnection, SQLITE_OPEN_READWRITE, NULL);
@@ -288,12 +289,29 @@ void ToolMain::Tick(MSG *msg)
 		//resend scenegraph to Direct X renderer
 
 	//Renderer Update Call
+	m_toolInputCommands.mouseHori = 0;
+	m_toolInputCommands.mouseVert = 0;
+	if (!m_toolInputCommands.freeMouse)
+	{
+		POINT centrePos;
+		{
+			centrePos.x = m_width / 2;
+			centrePos.y = m_height / 2;
+			ClientToScreen(m_toolHandle, &centrePos);
+		}
+		POINT pos;
+		{
+			GetCursorPos(&pos);
+		}
+		m_toolInputCommands.mouseHori = pos.x - centrePos.x;
+		m_toolInputCommands.mouseVert = pos.y - centrePos.y;
+		SetCursorPos(centrePos.x, centrePos.y);
+	}
 	m_d3dRenderer.Tick(&m_toolInputCommands);
 }
 
 void ToolMain::UpdateInput(MSG * msg)
 {
-
 	switch (msg->message)
 	{
 		//Global inputs,  mouse position and keys etc
@@ -315,6 +333,8 @@ void ToolMain::UpdateInput(MSG * msg)
 	}
 	//here we update all the actual app functionality that we want.  This information will either be used int toolmain, or sent down to the renderer (Camera movement etc
 	//WASD movement
+	// 16 = shift
+	// 17 = control
 	if (m_keyArray['W'])
 	{
 		m_toolInputCommands.forward = true;
@@ -338,16 +358,15 @@ void ToolMain::UpdateInput(MSG * msg)
 	}
 	else m_toolInputCommands.right = false;
 	//rotation
-	if (m_keyArray['E'])
+	// offset on the x 13 + 100, y 91 + 100 (snapping to centre)
+	if (m_keyArray[16])
 	{
-		m_toolInputCommands.rotRight = true;
+		m_toolInputCommands.freeMouse = true;
 	}
-	else m_toolInputCommands.rotRight = false;
-	if (m_keyArray['Q'])
+	else
 	{
-		m_toolInputCommands.rotLeft = true;
+		m_toolInputCommands.freeMouse = false;
 	}
-	else m_toolInputCommands.rotLeft = false;
 
 	//WASD
 }

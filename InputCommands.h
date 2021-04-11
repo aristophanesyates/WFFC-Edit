@@ -6,6 +6,7 @@ struct InputCommands
 	bool back;
 	bool right;
 	bool left;
-	bool rotRight;
-	bool rotLeft;
+	bool freeMouse;
+	float mouseHori;
+	float mouseVert;
 };
