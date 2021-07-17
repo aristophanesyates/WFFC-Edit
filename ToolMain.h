@@ -37,6 +37,8 @@ private:	//methods
 
 		
 private:	//variables
+	enum class TRANSFORM_MODE {TRANSLATE, SCALE, ROTATE, NONE};
+	TRANSFORM_MODE m_transform_mode = TRANSFORM_MODE::NONE;
 	int currentSelection = -1;
 	HWND	m_toolHandle;		//Handle to the  window
 	Game	m_d3dRenderer;		//Instance of D3D rendering system for our tool

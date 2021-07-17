@@ -501,18 +501,21 @@ void Game::BuildDisplayList(std::vector<SceneObject> * SceneGraph)
 
 void Game::UpdateDisplayList(int object_id, std::vector<SceneObject>* SceneGraph)
 {
-	m_displayList.at(object_id).m_position.x = SceneGraph->at(object_id).posX;
-	m_displayList.at(object_id).m_position.y = SceneGraph->at(object_id).posY;
-	m_displayList.at(object_id).m_position.z = SceneGraph->at(object_id).posZ;
-	m_displayList.at(object_id).m_orientation.x = SceneGraph->at(object_id).rotX;
-	m_displayList.at(object_id).m_orientation.y = SceneGraph->at(object_id).rotY;
-	m_displayList.at(object_id).m_orientation.z = SceneGraph->at(object_id).rotZ;
-	m_displayList.at(object_id).m_scale.x = SceneGraph->at(object_id).scaX;
-	m_displayList.at(object_id).m_scale.y = SceneGraph->at(object_id).scaY;
-	m_displayList.at(object_id).m_scale.z = SceneGraph->at(object_id).scaZ;
-	m_displayList.at(object_id).m_scale.z = SceneGraph->at(object_id).scaZ;
-	m_displayList.at(object_id).m_render = SceneGraph->at(object_id).render;
-	m_displayList.at(object_id).m_wireframe = SceneGraph->at(object_id).editor_wireframe;
+	DisplayObject & displayEntryRef = m_displayList.at(object_id);
+	SceneObject & sceneEntryRef = SceneGraph->at(object_id);
+
+	displayEntryRef.m_scale.x = sceneEntryRef.scaX;
+	displayEntryRef.m_scale.y = sceneEntryRef.scaY;
+	displayEntryRef.m_scale.z = sceneEntryRef.scaZ;
+	displayEntryRef.m_scale.z = sceneEntryRef.scaZ;
+
+	displayEntryRef.m_orientation.x = sceneEntryRef.rotX;
+	displayEntryRef.m_orientation.y = sceneEntryRef.rotY;
+	displayEntryRef.m_orientation.z = sceneEntryRef.rotZ;
+
+	displayEntryRef.m_position.x = sceneEntryRef.posX;
+	displayEntryRef.m_position.y = sceneEntryRef.posY;
+	displayEntryRef.m_position.z = sceneEntryRef.posZ;
 }
 
 void Game::BuildDisplayChunk(ChunkObject * SceneChunk)

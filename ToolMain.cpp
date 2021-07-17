@@ -325,38 +325,116 @@ void ToolMain::Tick(MSG *msg)
 			if (m_toolInputCommands.arrowForward)
 			{
 				DirectX::SimpleMath::Vector3 vector = m_d3dRenderer.CamXZForward();
-				m_sceneGraph.at(currentSelection).posX += vector.x;
-				m_sceneGraph.at(currentSelection).posY += vector.y;
-				m_sceneGraph.at(currentSelection).posZ += vector.z;
+				switch (m_transform_mode)
+				{
+				case TRANSFORM_MODE::TRANSLATE:
+					m_sceneGraph.at(currentSelection).posX += vector.x;
+					m_sceneGraph.at(currentSelection).posY += vector.y;
+					m_sceneGraph.at(currentSelection).posZ += vector.z;
+					break;
+				case TRANSFORM_MODE::SCALE:
+					m_sceneGraph.at(currentSelection).scaZ += 1;
+					break;
+				case TRANSFORM_MODE::ROTATE:
+					m_sceneGraph.at(currentSelection).rotZ += 1;
+					break;
+				case TRANSFORM_MODE::NONE:
+					break;					
+				}
 			}
 			if (m_toolInputCommands.arrowRight)
 			{
 				DirectX::SimpleMath::Vector3 vector = m_d3dRenderer.CamRight();
-				m_sceneGraph.at(currentSelection).posX += vector.x;
-				m_sceneGraph.at(currentSelection).posY += vector.y;
-				m_sceneGraph.at(currentSelection).posZ += vector.z;
+				switch (m_transform_mode)
+				{
+				case TRANSFORM_MODE::TRANSLATE:
+					m_sceneGraph.at(currentSelection).posX += vector.x;
+					m_sceneGraph.at(currentSelection).posY += vector.y;
+					m_sceneGraph.at(currentSelection).posZ += vector.z;
+					break;
+				case TRANSFORM_MODE::SCALE:
+					m_sceneGraph.at(currentSelection).scaX += 1;
+					break;
+				case TRANSFORM_MODE::ROTATE:
+					m_sceneGraph.at(currentSelection).rotX += 1;
+					break;
+				case TRANSFORM_MODE::NONE:
+					break;
+				}
 			}
 			if (m_toolInputCommands.arrowBack)
 			{
 				DirectX::SimpleMath::Vector3 vector = m_d3dRenderer.CamXZForward();
-				m_sceneGraph.at(currentSelection).posX -= vector.x;
-				m_sceneGraph.at(currentSelection).posY -= vector.y;
-				m_sceneGraph.at(currentSelection).posZ -= vector.z;
+				switch (m_transform_mode)
+				{
+				case TRANSFORM_MODE::TRANSLATE:
+					m_sceneGraph.at(currentSelection).posX -= vector.x;
+					m_sceneGraph.at(currentSelection).posY -= vector.y;
+					m_sceneGraph.at(currentSelection).posZ -= vector.z;
+					break;
+				case TRANSFORM_MODE::SCALE:
+					m_sceneGraph.at(currentSelection).scaZ -= 1;
+					break;
+				case TRANSFORM_MODE::ROTATE:
+					m_sceneGraph.at(currentSelection).rotZ -= 1;
+					break;
+				case TRANSFORM_MODE::NONE:
+					break;
+				}
 			}
 			if (m_toolInputCommands.arrowLeft)
 			{
 				DirectX::SimpleMath::Vector3 vector = m_d3dRenderer.CamRight();
-				m_sceneGraph.at(currentSelection).posX -= vector.x;
-				m_sceneGraph.at(currentSelection).posY -= vector.y;
-				m_sceneGraph.at(currentSelection).posZ -= vector.z;
+				switch (m_transform_mode)
+				{
+				case TRANSFORM_MODE::TRANSLATE:
+					m_sceneGraph.at(currentSelection).posX -= vector.x;
+					m_sceneGraph.at(currentSelection).posY -= vector.y;
+					m_sceneGraph.at(currentSelection).posZ -= vector.z;
+					break;
+				case TRANSFORM_MODE::SCALE:
+					m_sceneGraph.at(currentSelection).scaX -= 1;
+					break;
+				case TRANSFORM_MODE::ROTATE:
+					m_sceneGraph.at(currentSelection).rotX -= 1;
+					break;
+				case TRANSFORM_MODE::NONE:
+					break;
+				}
 			}
 			if (m_toolInputCommands.pageUp)
 			{
-				m_sceneGraph.at(currentSelection).posY += 1;
+				switch (m_transform_mode)
+				{
+				case TRANSFORM_MODE::TRANSLATE:
+					m_sceneGraph.at(currentSelection).posY += 1;
+					break;
+				case TRANSFORM_MODE::SCALE:
+					m_sceneGraph.at(currentSelection).scaY += 1;
+					break;
+				case TRANSFORM_MODE::ROTATE:
+					m_sceneGraph.at(currentSelection).rotY += 1;
+					break;
+				case TRANSFORM_MODE::NONE:
+					break;
+				}
 			}
 			if (m_toolInputCommands.pageDown)
 			{
-				m_sceneGraph.at(currentSelection).posY -= 1;
+				switch (m_transform_mode)
+				{
+				case TRANSFORM_MODE::TRANSLATE:
+					m_sceneGraph.at(currentSelection).posY -= 1;
+					break;
+				case TRANSFORM_MODE::SCALE:
+					m_sceneGraph.at(currentSelection).scaY -= 1;
+					break;
+				case TRANSFORM_MODE::ROTATE:
+					m_sceneGraph.at(currentSelection).rotY -= 1;
+					break;
+				case TRANSFORM_MODE::NONE:
+					break;
+				}
 			}
 		}
 	}
@@ -401,6 +479,18 @@ void ToolMain::UpdateInput(MSG * msg)
 	//WASD movement
 	// 16 = shift
 	// 17 = control
+	if (m_keyArray['1'] && !m_toolInputCommands.freeMouse)
+	{
+		m_transform_mode = TRANSFORM_MODE::TRANSLATE;
+	}
+	if (m_keyArray['2'] && !m_toolInputCommands.freeMouse)
+	{
+		m_transform_mode = TRANSFORM_MODE::SCALE;
+	}
+	if (m_keyArray['3'] && !m_toolInputCommands.freeMouse)
+	{
+		m_transform_mode = TRANSFORM_MODE::ROTATE;
+	}
 	if (m_keyArray['W'] && !m_toolInputCommands.freeMouse)
 	{
 		m_toolInputCommands.forward = true;

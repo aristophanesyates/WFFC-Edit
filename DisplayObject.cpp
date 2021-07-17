@@ -40,7 +40,7 @@ void DisplayObject::setHighlight(bool highlighted)
 		if (fog)
 		{
 			fog->SetFogEnabled(highlighted);
-			fog->SetFogColor(Colors::CornflowerBlue);
+			fog->SetFogColor(Colors::YellowGreen);
 		}
 	});
 }
