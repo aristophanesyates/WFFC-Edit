@@ -6,6 +6,10 @@ struct InputCommands
 	bool back = false;
 	bool right = false;
 	bool left = false;
+	bool arrowForward = false;
+	bool arrowBack = false;
+	bool arrowRight = false;
+	bool arrowLeft = false;
 	bool freeMouse = false;
 	float mouseHori = 0;
 	float mouseVert = 0;

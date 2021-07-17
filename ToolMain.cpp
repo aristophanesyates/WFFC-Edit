@@ -313,15 +313,51 @@ void ToolMain::Tick(MSG *msg)
 		if (m_toolInputCommands.leftClick)
 		{
 			int clickedObject = m_d3dRenderer.Pick();
+			currentSelection = clickedObject;
 			m_d3dRenderer.DeselectAll();
 			if (clickedObject != -1)
 			{
 				m_d3dRenderer.Select(clickedObject, true);
 			}
 		}
+		if (currentSelection != -1)
+		{
+			if (m_toolInputCommands.arrowForward)
+			{
+				DirectX::SimpleMath::Vector3 vector = m_d3dRenderer.CamXZForward();
+				m_sceneGraph.at(currentSelection).posX += vector.x;
+				m_sceneGraph.at(currentSelection).posY += vector.y;
+				m_sceneGraph.at(currentSelection).posZ += vector.z;
+			}
+			if (m_toolInputCommands.arrowRight)
+			{
+				DirectX::SimpleMath::Vector3 vector = m_d3dRenderer.CamRight();
+				m_sceneGraph.at(currentSelection).posX += vector.x;
+				m_sceneGraph.at(currentSelection).posY += vector.y;
+				m_sceneGraph.at(currentSelection).posZ += vector.z;
+			}
+			if (m_toolInputCommands.arrowBack)
+			{
+				DirectX::SimpleMath::Vector3 vector = m_d3dRenderer.CamXZForward();
+				m_sceneGraph.at(currentSelection).posX -= vector.x;
+				m_sceneGraph.at(currentSelection).posY -= vector.y;
+				m_sceneGraph.at(currentSelection).posZ -= vector.z;
+			}
+			if (m_toolInputCommands.arrowLeft)
+			{
+				DirectX::SimpleMath::Vector3 vector = m_d3dRenderer.CamRight();
+				m_sceneGraph.at(currentSelection).posX -= vector.x;
+				m_sceneGraph.at(currentSelection).posY -= vector.y;
+				m_sceneGraph.at(currentSelection).posZ -= vector.z;
+			}
+		}
 	}
 	m_d3dRenderer.Tick(&m_toolInputCommands);
 	m_toolInputCommands.leftClick = false;
+	if (currentSelection != -1)
+	{
+		m_d3dRenderer.UpdateDisplayList(currentSelection, &m_sceneGraph);
+	}
 }
 
 void ToolMain::UpdateInput(MSG * msg)
@@ -357,28 +393,50 @@ void ToolMain::UpdateInput(MSG * msg)
 	//WASD movement
 	// 16 = shift
 	// 17 = control
-	if (m_keyArray['W'])
+	if (m_keyArray['W'] && !m_toolInputCommands.freeMouse)
 	{
 		m_toolInputCommands.forward = true;
 	}
 	else m_toolInputCommands.forward = false;
-	
-	if (m_keyArray['S'])
+
+	if (m_keyArray['S'] && !m_toolInputCommands.freeMouse)
 	{
 		m_toolInputCommands.back = true;
 	}
 	else m_toolInputCommands.back = false;
-	if (m_keyArray['A'])
+	if (m_keyArray['A'] && !m_toolInputCommands.freeMouse)
 	{
 		m_toolInputCommands.left = true;
 	}
 	else m_toolInputCommands.left = false;
 
-	if (m_keyArray['D'])
+	if (m_keyArray['D'] && !m_toolInputCommands.freeMouse)
 	{
 		m_toolInputCommands.right = true;
 	}
 	else m_toolInputCommands.right = false;
+	if (m_keyArray[38])
+	{
+		m_toolInputCommands.arrowForward = true;
+	}
+	else m_toolInputCommands.arrowForward = false;
+
+	if (m_keyArray[40])
+	{
+		m_toolInputCommands.arrowBack = true;
+	}
+	else m_toolInputCommands.arrowBack = false;
+	if (m_keyArray[37])
+	{
+		m_toolInputCommands.arrowLeft = true;
+	}
+	else m_toolInputCommands.arrowLeft = false;
+
+	if (m_keyArray[39])
+	{
+		m_toolInputCommands.arrowRight = true;
+	}
+	else m_toolInputCommands.arrowRight = false;
 	//rotation
 	// offset on the x 13 + 100, y 91 + 100 (snapping to centre)
 	if (m_keyArray[16])

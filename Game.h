@@ -48,12 +48,15 @@ public:
 
 	//tool specific
 	void BuildDisplayList(std::vector<SceneObject> * SceneGraph); //note vector passed by reference 
+	void UpdateDisplayList(int object_id, std::vector<SceneObject> * SceneGraph); //note vector passed by reference 
 	void BuildDisplayChunk(ChunkObject *SceneChunk);
 	void SaveDisplayChunk(ChunkObject *SceneChunk);	//saves geometry et al
 	void ClearDisplayList();
 	int Pick();
 	void DeselectAll();
 	void Select(int object_id, bool highlighted);
+	DirectX::SimpleMath::Vector3 CamXZForward();
+	DirectX::SimpleMath::Vector3 CamRight();
 
 #ifdef DXTK_AUDIO
 	void NewAudioDevice();

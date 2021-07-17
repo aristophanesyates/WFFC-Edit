@@ -13,6 +13,7 @@ protected:
 	DirectX::SimpleMath::Vector3		m_camLookAt;
 
 public:
+
 	void Update(InputCommands & inputCommands);
 	DirectX::SimpleMath::Vector3		m_camLookDirection;
 	DirectX::SimpleMath::Vector3		m_camRight;

@@ -189,6 +189,21 @@ void Game::Select(int object_id, bool highlighted)
 	m_displayList.at(object_id).setHighlight(highlighted);
 }
 
+DirectX::SimpleMath::Vector3 Game::CamXZForward()
+{
+	using namespace SimpleMath;
+	//cancel y component
+	Vector3 camXZForwardVector = (cam.m_camLookDirection * Vector3{ 1, 0, 1 });
+	//normalise
+	camXZForwardVector.Normalize();
+	return camXZForwardVector;
+}
+
+DirectX::SimpleMath::Vector3 Game::CamRight()
+{
+	return cam.m_camRight;
+}
+
 // Updates the world.
 void Game::Update(DX::StepTimer const& timer)
 {
@@ -482,6 +497,22 @@ void Game::BuildDisplayList(std::vector<SceneObject> * SceneGraph)
 		
 		
 		
+}
+
+void Game::UpdateDisplayList(int object_id, std::vector<SceneObject>* SceneGraph)
+{
+	m_displayList.at(object_id).m_position.x = SceneGraph->at(object_id).posX;
+	m_displayList.at(object_id).m_position.y = SceneGraph->at(object_id).posY;
+	m_displayList.at(object_id).m_position.z = SceneGraph->at(object_id).posZ;
+	m_displayList.at(object_id).m_orientation.x = SceneGraph->at(object_id).rotX;
+	m_displayList.at(object_id).m_orientation.y = SceneGraph->at(object_id).rotY;
+	m_displayList.at(object_id).m_orientation.z = SceneGraph->at(object_id).rotZ;
+	m_displayList.at(object_id).m_scale.x = SceneGraph->at(object_id).scaX;
+	m_displayList.at(object_id).m_scale.y = SceneGraph->at(object_id).scaY;
+	m_displayList.at(object_id).m_scale.z = SceneGraph->at(object_id).scaZ;
+	m_displayList.at(object_id).m_scale.z = SceneGraph->at(object_id).scaZ;
+	m_displayList.at(object_id).m_render = SceneGraph->at(object_id).render;
+	m_displayList.at(object_id).m_wireframe = SceneGraph->at(object_id).editor_wireframe;
 }
 
 void Game::BuildDisplayChunk(ChunkObject * SceneChunk)
