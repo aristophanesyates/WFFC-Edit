@@ -6,7 +6,9 @@ BEGIN_MESSAGE_MAP(MFCMain, CWinApp)
 	ON_COMMAND(ID_FILE_QUIT,	&MFCMain::MenuFileQuit)
 	ON_COMMAND(ID_FILE_SAVETERRAIN, &MFCMain::MenuFileSaveTerrain)
 	ON_COMMAND(ID_EDIT_SELECT, &MFCMain::MenuEditSelect)
-	ON_COMMAND(ID_BUTTON40001,	&MFCMain::ToolBarButton1)
+	ON_COMMAND(ID_BUTTON40001, &MFCMain::TranslateButton)
+	ON_COMMAND(ID_BUTTON40002, &MFCMain::ScaleButton)
+	ON_COMMAND(ID_BUTTON40003, &MFCMain::RotateButton)
 	ON_UPDATE_COMMAND_UI(ID_INDICATOR_TOOL, &CMyFrame::OnUpdatePage)
 END_MESSAGE_MAP()
 
@@ -89,7 +91,8 @@ void MFCMain::MenuFileQuit()
 
 void MFCMain::MenuFileSaveTerrain()
 {
-	m_ToolSystem.onActionSaveTerrain();
+	m_ToolSystem.onActionSave();
+
 }
 
 void MFCMain::MenuEditSelect()
@@ -103,10 +106,20 @@ void MFCMain::MenuEditSelect()
 	m_ToolSelectDialogue.SetObjectData(&m_ToolSystem.m_sceneGraph, &m_ToolSystem.m_selectedObject);
 }
 
-void MFCMain::ToolBarButton1()
+void MFCMain::TranslateButton()
 {
-	
-	m_ToolSystem.onActionSave();
+	m_ToolSystem.SetTranslateMode();
+
+}
+
+void MFCMain::ScaleButton()
+{
+	m_ToolSystem.SetScaleMode();
+}
+
+void MFCMain::RotateButton()
+{
+	m_ToolSystem.SetRotateMode();
 }
 
 

@@ -563,3 +563,18 @@ void ToolMain::UpdateInput(MSG * msg)
 
 	//WASD
 }
+
+void ToolMain::SetTranslateMode()
+{
+	m_transform_mode = TRANSFORM_MODE::TRANSLATE;
+}
+
+void ToolMain::SetScaleMode()
+{
+	m_transform_mode = TRANSFORM_MODE::SCALE;
+}
+
+void ToolMain::SetRotateMode()
+{
+	m_transform_mode = TRANSFORM_MODE::ROTATE;
+}

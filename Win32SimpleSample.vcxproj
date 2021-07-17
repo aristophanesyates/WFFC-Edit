@@ -212,7 +212,10 @@
     <ResourceCompile Include="Win32SimpleSample.rc" />
   </ItemGroup>
   <ItemGroup>
+    <Image Include="rotate.bmp" />
+    <Image Include="scale.bmp" />
     <Image Include="toolbar1.bmp" />
+    <Image Include="translate.bmp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

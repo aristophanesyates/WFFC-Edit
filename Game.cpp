@@ -118,41 +118,34 @@ int Game::Pick()
 {
 	int selected_object_ID = -1;
 	float pickedDistance = 0;
-	//setup near and far planes of frustum with mouse X and mouse y passed down from Toolmain. 
-	//they may look the same but note, the difference in Z
+	//setup near and far. 
 	const XMVECTOR nearSource = XMVectorSet(m_InputCommands.mouseX, m_InputCommands.mouseY, 0.0f, 1.0f);
 	const XMVECTOR farSource = XMVectorSet(m_InputCommands.mouseX, m_InputCommands.mouseY, 1.0f, 1.0f);
 
-	// Stores IDs of intersected objects and their distances from the ray origin, in order of shortest distance.
-	//std::map<float, int, std::less<float>> distances_and_IDs;
-
-	float distance = 99999999999999999999999999999999999999.f;
-	//Loop through entire display list of objects and pick with each in turn. 
+	// initialise to big value, so it is overwritten with smaller value, choosing closest target
+	float distance = 99999999999999999999999999999999999999.f; 
 	for (int i = 0; i < m_displayList.size(); i++)
 	{
-		//Get the scale factor and translation of the object
 		const XMVECTORF32 scale = { m_displayList[i].m_scale.x,	m_displayList[i].m_scale.y,	m_displayList[i].m_scale.z };
 		const XMVECTORF32 translate = { m_displayList[i].m_position.x, m_displayList[i].m_position.y, m_displayList[i].m_position.z };
 
-		//convert euler angles into a quaternion for the rotation of the object
 		XMVECTOR rotate = Quaternion::CreateFromYawPitchRoll(m_displayList[i].m_orientation.y *3.1415 / 180, m_displayList[i].m_orientation.x *3.1415 / 180, m_displayList[i].m_orientation.z *3.1415 / 180);
 
-		//create set the matrix of the selected object in the world based on the translation, scale and rotation.
 		XMMATRIX local = m_world * XMMatrixTransformation(g_XMZero, Quaternion::Identity, scale, g_XMZero, rotate, translate);
 
-		//Unproject the points on the near and far plane, with respect to the matrix we just created.
+		//unprojectpoints onto the near and far planes.
 		XMVECTOR nearPoint = XMVector3Unproject(nearSource, 0.0f, 0.0f, m_width, m_height, m_deviceResources->GetScreenViewport().MinDepth, m_deviceResources->GetScreenViewport().MaxDepth, m_projection, m_view, local);
 
 		XMVECTOR farPoint = XMVector3Unproject(farSource, 0.0f, 0.0f, m_width, m_height, m_deviceResources->GetScreenViewport().MinDepth, m_deviceResources->GetScreenViewport().MaxDepth, m_projection, m_view, local);
 
-		//turn the transformed points into our picking vector. 
+		//new picking vector
 		XMVECTOR pickingVector = farPoint - nearPoint;
 		pickingVector = XMVector3Normalize(pickingVector);
 
-		//loop through mesh list for object
+		//iterate through meshes
 		for (int y = 0; y < m_displayList[i].m_model.get()->meshes.size(); y++)
 		{
-			//checking for ray intersection
+			//intersection
 			if (m_displayList[i].m_model.get()->meshes[y]->boundingBox.Intersects(nearPoint, pickingVector, pickedDistance))
 			{
 				if (distance > pickedDistance)
@@ -164,15 +157,6 @@ int Game::Pick()
 			}
 		}
 	}
-	// If there has been at least one intersection.
-	//if (distances_and_IDs.size() > 0)
-	//{
-	//	// The desired object ID is the first in the list as it has already been sorted.
-	//	selected_object_ID = distances_and_IDs.begin()->second;
-	//}
-	//distances_and_IDs.clear();
-
-	//if we got a hit.  return it.  
 	return selected_object_ID;
 }
 
