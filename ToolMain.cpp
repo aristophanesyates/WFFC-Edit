@@ -309,18 +309,19 @@ void ToolMain::Tick(MSG *msg)
 	}
 	else
 	{
-		m_toolInputCommands.mouseX = GET_X_LPARAM(msg->lParam);
-		m_toolInputCommands.mouseY = GET_Y_LPARAM(msg->lParam);
+		
 		if (m_toolInputCommands.leftClick)
 		{
 			int clickedObject = m_d3dRenderer.Pick();
+			m_d3dRenderer.DeselectAll();
 			if (clickedObject != -1)
 			{
-				m_d3dRenderer.setHighlight(clickedObject, true);
+				m_d3dRenderer.Select(clickedObject, true);
 			}
 		}
 	}
 	m_d3dRenderer.Tick(&m_toolInputCommands);
+	m_toolInputCommands.leftClick = false;
 }
 
 void ToolMain::UpdateInput(MSG * msg)
@@ -337,6 +338,8 @@ void ToolMain::UpdateInput(MSG * msg)
 		break;
 
 	case WM_MOUSEMOVE:
+		m_toolInputCommands.mouseX = GET_X_LPARAM(msg->lParam);
+		m_toolInputCommands.mouseY = GET_Y_LPARAM(msg->lParam);
 		break;
 
 	case WM_LBUTTONDOWN:	//mouse button down,  you will probably need to check when its up too

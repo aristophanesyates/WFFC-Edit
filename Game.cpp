@@ -125,8 +125,8 @@ int Game::Pick()
 
 	// Stores IDs of intersected objects and their distances from the ray origin, in order of shortest distance.
 	//std::map<float, int, std::less<float>> distances_and_IDs;
-	
-	float distance = -1;
+
+	float distance = 99999999999999999999999999999999999999.f;
 	//Loop through entire display list of objects and pick with each in turn. 
 	for (int i = 0; i < m_displayList.size(); i++)
 	{
@@ -155,12 +155,12 @@ int Game::Pick()
 			//checking for ray intersection
 			if (m_displayList[i].m_model.get()->meshes[y]->boundingBox.Intersects(nearPoint, pickingVector, pickedDistance))
 			{
-				if (distance > pickedDistance || distance == -1)
+				if (distance > pickedDistance)
 				{
 					distance = pickedDistance;
 					selected_object_ID = i;
+					break;
 				}
-				break;
 			}
 		}
 	}
@@ -176,7 +176,15 @@ int Game::Pick()
 	return selected_object_ID;
 }
 
-void Game::setHighlight(int object_id, bool highlighted)
+void Game::DeselectAll()
+{
+	for (auto object : m_displayList)
+	{
+		object.setHighlight(false);
+	}
+}
+
+void Game::Select(int object_id, bool highlighted)
 {
 	m_displayList.at(object_id).setHighlight(highlighted);
 }
@@ -249,12 +257,7 @@ void Game::Render()
 		const XMVECTORF32 yaxis = { 0.f, 0.f, 512.f };
 		DrawGrid(xaxis, yaxis, g_XMZero, 512, 512, Colors::Gray);
 	}
-	//CAMERA POSITION ON HUD
-	m_sprites->Begin();
-	WCHAR   Buffer[256];
-	std::wstring var = L"Cam X: " + std::to_wstring(cam.GetPosition().x) + L"Cam Z: " + std::to_wstring(cam.GetPosition().z) + L"TEST: " + std::to_wstring( m_InputCommands.mouseX) + L" " + std::to_wstring(m_InputCommands.mouseY);
-	m_font->DrawString(m_sprites.get(), var.c_str() , XMFLOAT2(100, 10), Colors::Yellow);
-	m_sprites->End();
+	
 
 	//RENDER OBJECTS FROM SCENEGRAPH
 	int numRenderObjects = m_displayList.size();
@@ -285,6 +288,13 @@ void Game::Render()
 
 	//Render the batch,  This is handled in the Display chunk becuase it has the potential to get complex
 	m_displayChunk.RenderBatch(m_deviceResources);
+
+	//CAMERA POSITION ON HUD
+	m_sprites->Begin();
+	WCHAR   Buffer[256];
+	std::wstring var = L"Cam X: " + std::to_wstring(cam.GetPosition().x) + L"Cam Z: " + std::to_wstring(cam.GetPosition().z) + L"TEST: " + std::to_wstring(m_InputCommands.mouseX) + L" " + std::to_wstring(m_InputCommands.mouseY);
+	m_font->DrawString(m_sprites.get(), var.c_str(), XMFLOAT2(100, 10), Colors::Yellow);
+	m_sprites->End();
 
     m_deviceResources->Present();
 }

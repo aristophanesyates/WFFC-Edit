@@ -52,7 +52,8 @@ public:
 	void SaveDisplayChunk(ChunkObject *SceneChunk);	//saves geometry et al
 	void ClearDisplayList();
 	int Pick();
-	void setHighlight(int object_id, bool highlighted);
+	void DeselectAll();
+	void Select(int object_id, bool highlighted);
 
 #ifdef DXTK_AUDIO
 	void NewAudioDevice();
