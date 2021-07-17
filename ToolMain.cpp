@@ -350,6 +350,14 @@ void ToolMain::Tick(MSG *msg)
 				m_sceneGraph.at(currentSelection).posY -= vector.y;
 				m_sceneGraph.at(currentSelection).posZ -= vector.z;
 			}
+			if (m_toolInputCommands.pageUp)
+			{
+				m_sceneGraph.at(currentSelection).posY += 1;
+			}
+			if (m_toolInputCommands.pageDown)
+			{
+				m_sceneGraph.at(currentSelection).posY -= 1;
+			}
 		}
 	}
 	m_d3dRenderer.Tick(&m_toolInputCommands);
@@ -404,6 +412,7 @@ void ToolMain::UpdateInput(MSG * msg)
 		m_toolInputCommands.back = true;
 	}
 	else m_toolInputCommands.back = false;
+
 	if (m_keyArray['A'] && !m_toolInputCommands.freeMouse)
 	{
 		m_toolInputCommands.left = true;
@@ -415,6 +424,7 @@ void ToolMain::UpdateInput(MSG * msg)
 		m_toolInputCommands.right = true;
 	}
 	else m_toolInputCommands.right = false;
+
 	if (m_keyArray[38])
 	{
 		m_toolInputCommands.arrowForward = true;
@@ -426,6 +436,7 @@ void ToolMain::UpdateInput(MSG * msg)
 		m_toolInputCommands.arrowBack = true;
 	}
 	else m_toolInputCommands.arrowBack = false;
+
 	if (m_keyArray[37])
 	{
 		m_toolInputCommands.arrowLeft = true;
@@ -437,6 +448,18 @@ void ToolMain::UpdateInput(MSG * msg)
 		m_toolInputCommands.arrowRight = true;
 	}
 	else m_toolInputCommands.arrowRight = false;
+
+	if (m_keyArray[33])
+	{
+		m_toolInputCommands.pageUp = true;
+	}
+	else m_toolInputCommands.pageUp = false;
+
+	if (m_keyArray[34])
+	{
+		m_toolInputCommands.pageDown = true;
+	}
+	else m_toolInputCommands.pageDown = false;
 	//rotation
 	// offset on the x 13 + 100, y 91 + 100 (snapping to centre)
 	if (m_keyArray[16])

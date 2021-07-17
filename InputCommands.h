@@ -10,6 +10,8 @@ struct InputCommands
 	bool arrowBack = false;
 	bool arrowRight = false;
 	bool arrowLeft = false;
+	bool pageUp = false;
+	bool pageDown = false;
 	bool freeMouse = false;
 	float mouseHori = 0;
 	float mouseVert = 0;
