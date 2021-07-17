@@ -3,18 +3,20 @@
 
 void Camera::Update(InputCommands & inputCommands)
 {
-	DirectX::SimpleMath::Vector3 planarMotionVector = m_camLookDirection;
-	planarMotionVector.y = 0.0;
+	using namespace DirectX;
+	using namespace SimpleMath;
+	using namespace std;
+	float rotRate = m_camRotRate / 100;
 
+	//add mouse rotation and clamp vertical rotation to one half rotation
 	m_camOrientation.y -= inputCommands.mouseHori;
-
-	//create look direction from Euler angles in m_camOrientation
-	m_camLookDirection.x = sin((m_camOrientation.y)*3.1415 / 180);
-	m_camLookDirection.z = cos((m_camOrientation.y)*3.1415 / 180);
-	m_camLookDirection.Normalize();
-
+	m_camOrientation.x += inputCommands.mouseVert;
+	m_camOrientation.x = max(min(m_camOrientation.x, 314.f), -314.f);
+	//create look direction from angles in m_camOrientation
+	m_camLookDirection = XMVECTOR{ 0.f,0.f,1.f};
+	m_camLookDirection = XMVector3Transform(m_camLookDirection, XMMatrixRotationRollPitchYaw(m_camOrientation.x * rotRate, m_camOrientation.y * rotRate, 0.0f));
 	//create right vector from look Direction
-	m_camLookDirection.Cross(DirectX::SimpleMath::Vector3::UnitY, m_camRight);
+	m_camLookDirection.Cross(SimpleMath::Vector3::UnitY, m_camRight);
 
 	//process input and update stuff
 	if (inputCommands.forward)

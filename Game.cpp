@@ -25,7 +25,7 @@ Game::Game()
 	m_grid = false;
 	
 	//initialise camera
-	cam.Init(0.30f, 3.0f);
+	cam.Init(0.30f, 0.5f);
 	cam.SetPosition(0.0f, 3.7f, -3.5f);
 
 }
