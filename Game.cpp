@@ -44,6 +44,8 @@ Game::~Game()
 // Initialize the Direct3D resources required to run.
 void Game::Initialize(HWND window, int width, int height)
 {
+	m_width = width;
+	m_height = height;
     m_gamePad = std::make_unique<GamePad>();
 
     m_keyboard = std::make_unique<Keyboard>();
@@ -110,6 +112,73 @@ void Game::Tick(InputCommands *Input)
 #endif
 
     Render();
+}
+
+int Game::Pick()
+{
+	int selected_object_ID = -1;
+	float pickedDistance = 0;
+	//setup near and far planes of frustum with mouse X and mouse y passed down from Toolmain. 
+	//they may look the same but note, the difference in Z
+	const XMVECTOR nearSource = XMVectorSet(m_InputCommands.mouseX, m_InputCommands.mouseY, 0.0f, 1.0f);
+	const XMVECTOR farSource = XMVectorSet(m_InputCommands.mouseX, m_InputCommands.mouseY, 1.0f, 1.0f);
+
+	// Stores IDs of intersected objects and their distances from the ray origin, in order of shortest distance.
+	//std::map<float, int, std::less<float>> distances_and_IDs;
+	
+	float distance = -1;
+	//Loop through entire display list of objects and pick with each in turn. 
+	for (int i = 0; i < m_displayList.size(); i++)
+	{
+		//Get the scale factor and translation of the object
+		const XMVECTORF32 scale = { m_displayList[i].m_scale.x,	m_displayList[i].m_scale.y,	m_displayList[i].m_scale.z };
+		const XMVECTORF32 translate = { m_displayList[i].m_position.x, m_displayList[i].m_position.y, m_displayList[i].m_position.z };
+
+		//convert euler angles into a quaternion for the rotation of the object
+		XMVECTOR rotate = Quaternion::CreateFromYawPitchRoll(m_displayList[i].m_orientation.y *3.1415 / 180, m_displayList[i].m_orientation.x *3.1415 / 180, m_displayList[i].m_orientation.z *3.1415 / 180);
+
+		//create set the matrix of the selected object in the world based on the translation, scale and rotation.
+		XMMATRIX local = m_world * XMMatrixTransformation(g_XMZero, Quaternion::Identity, scale, g_XMZero, rotate, translate);
+
+		//Unproject the points on the near and far plane, with respect to the matrix we just created.
+		XMVECTOR nearPoint = XMVector3Unproject(nearSource, 0.0f, 0.0f, m_width, m_height, m_deviceResources->GetScreenViewport().MinDepth, m_deviceResources->GetScreenViewport().MaxDepth, m_projection, m_view, local);
+
+		XMVECTOR farPoint = XMVector3Unproject(farSource, 0.0f, 0.0f, m_width, m_height, m_deviceResources->GetScreenViewport().MinDepth, m_deviceResources->GetScreenViewport().MaxDepth, m_projection, m_view, local);
+
+		//turn the transformed points into our picking vector. 
+		XMVECTOR pickingVector = farPoint - nearPoint;
+		pickingVector = XMVector3Normalize(pickingVector);
+
+		//loop through mesh list for object
+		for (int y = 0; y < m_displayList[i].m_model.get()->meshes.size(); y++)
+		{
+			//checking for ray intersection
+			if (m_displayList[i].m_model.get()->meshes[y]->boundingBox.Intersects(nearPoint, pickingVector, pickedDistance))
+			{
+				if (distance > pickedDistance || distance == -1)
+				{
+					distance = pickedDistance;
+					selected_object_ID = i;
+				}
+				break;
+			}
+		}
+	}
+	// If there has been at least one intersection.
+	//if (distances_and_IDs.size() > 0)
+	//{
+	//	// The desired object ID is the first in the list as it has already been sorted.
+	//	selected_object_ID = distances_and_IDs.begin()->second;
+	//}
+	//distances_and_IDs.clear();
+
+	//if we got a hit.  return it.  
+	return selected_object_ID;
+}
+
+void Game::setHighlight(int object_id, bool highlighted)
+{
+	m_displayList.at(object_id).setHighlight(highlighted);
 }
 
 // Updates the world.
@@ -183,7 +252,7 @@ void Game::Render()
 	//CAMERA POSITION ON HUD
 	m_sprites->Begin();
 	WCHAR   Buffer[256];
-	std::wstring var = L"Cam X: " + std::to_wstring(cam.GetPosition().x) + L"Cam Z: " + std::to_wstring(cam.GetPosition().z) + L"TEST: " + std::to_wstring( m_InputCommands.mouseHori);
+	std::wstring var = L"Cam X: " + std::to_wstring(cam.GetPosition().x) + L"Cam Z: " + std::to_wstring(cam.GetPosition().z) + L"TEST: " + std::to_wstring( m_InputCommands.mouseX) + L" " + std::to_wstring(m_InputCommands.mouseY);
 	m_font->DrawString(m_sprites.get(), var.c_str() , XMFLOAT2(100, 10), Colors::Yellow);
 	m_sprites->End();
 

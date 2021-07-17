@@ -291,6 +291,10 @@ void ToolMain::Tick(MSG *msg)
 	//Renderer Update Call
 	m_toolInputCommands.mouseHori = 0;
 	m_toolInputCommands.mouseVert = 0;
+	POINT pos;
+	{
+		GetCursorPos(&pos);
+	}
 	if (!m_toolInputCommands.freeMouse)
 	{
 		POINT centrePos;
@@ -299,13 +303,22 @@ void ToolMain::Tick(MSG *msg)
 			centrePos.y = m_height / 2;
 			ClientToScreen(m_toolHandle, &centrePos);
 		}
-		POINT pos;
-		{
-			GetCursorPos(&pos);
-		}
 		m_toolInputCommands.mouseHori = pos.x - centrePos.x;
 		m_toolInputCommands.mouseVert = pos.y - centrePos.y;
 		SetCursorPos(centrePos.x, centrePos.y);
+	}
+	else
+	{
+		m_toolInputCommands.mouseX = GET_X_LPARAM(msg->lParam);
+		m_toolInputCommands.mouseY = GET_Y_LPARAM(msg->lParam);
+		if (m_toolInputCommands.leftClick)
+		{
+			int clickedObject = m_d3dRenderer.Pick();
+			if (clickedObject != -1)
+			{
+				m_d3dRenderer.setHighlight(clickedObject, true);
+			}
+		}
 	}
 	m_d3dRenderer.Tick(&m_toolInputCommands);
 }
@@ -328,6 +341,12 @@ void ToolMain::UpdateInput(MSG * msg)
 
 	case WM_LBUTTONDOWN:	//mouse button down,  you will probably need to check when its up too
 		//set some flag for the mouse button in inputcommands
+		m_toolInputCommands.leftClick = true;
+		break;
+
+	case WM_LBUTTONUP:	//mouse button down,  you will probably need to check when its up too
+		//set some flag for the mouse button in inputcommands
+		m_toolInputCommands.leftClick = false;
 		break;
 
 	}

@@ -30,3 +30,17 @@ DisplayObject::~DisplayObject()
 {
 //	delete m_texture_diffuse;
 }
+
+void DisplayObject::setHighlight(bool highlighted)
+{
+	using namespace DirectX;
+	m_model->UpdateEffects([&](IEffect* effect)
+	{
+		auto fog = dynamic_cast<IEffectFog*>(effect);
+		if (fog)
+		{
+			fog->SetFogEnabled(highlighted);
+			fog->SetFogColor(Colors::CornflowerBlue);
+		}
+	});
+}

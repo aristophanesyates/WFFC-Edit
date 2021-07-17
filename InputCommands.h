@@ -2,11 +2,15 @@
 
 struct InputCommands
 {
-	bool forward;
-	bool back;
-	bool right;
-	bool left;
-	bool freeMouse;
-	float mouseHori;
-	float mouseVert;
+	bool forward = false;
+	bool back = false;
+	bool right = false;
+	bool left = false;
+	bool freeMouse = false;
+	float mouseHori = 0;
+	float mouseVert = 0;
+	int mouseX = 0;
+	int mouseY = 0;
+	bool leftClick = false;
+	bool rightClick = false;
 };

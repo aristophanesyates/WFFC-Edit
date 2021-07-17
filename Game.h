@@ -51,13 +51,16 @@ public:
 	void BuildDisplayChunk(ChunkObject *SceneChunk);
 	void SaveDisplayChunk(ChunkObject *SceneChunk);	//saves geometry et al
 	void ClearDisplayList();
+	int Pick();
+	void setHighlight(int object_id, bool highlighted);
 
 #ifdef DXTK_AUDIO
 	void NewAudioDevice();
 #endif
 
 private:
-
+	int m_width;
+	int m_height;
 	void Update(DX::StepTimer const& timer);
 
 	void CreateDeviceDependentResources();
