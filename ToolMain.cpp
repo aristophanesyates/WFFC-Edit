@@ -515,6 +515,18 @@ void ToolMain::UpdateInput(MSG * msg)
 	}
 	else m_toolInputCommands.right = false;
 
+	if (m_keyArray['Q'] && !m_toolInputCommands.freeMouse)
+	{
+		m_toolInputCommands.down = true;
+	}
+	else m_toolInputCommands.down = false;
+
+	if (m_keyArray['E'] && !m_toolInputCommands.freeMouse)
+	{
+		m_toolInputCommands.up = true;
+	}
+	else m_toolInputCommands.up = false;
+
 	if (m_keyArray[38])
 	{
 		m_toolInputCommands.arrowForward = true;

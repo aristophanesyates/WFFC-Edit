@@ -35,6 +35,14 @@ void Camera::Update(InputCommands & inputCommands)
 	{
 		m_camPosition -= m_camRight * m_movespeed;
 	}
+	if (inputCommands.up)
+	{
+		m_camPosition += SimpleMath::Vector3::UnitY * m_movespeed;
+	}
+	if (inputCommands.down)
+	{
+		m_camPosition -= SimpleMath::Vector3::UnitY * m_movespeed;
+	}
 
 	//update lookat point
 	m_camLookAt = m_camPosition + m_camLookDirection;

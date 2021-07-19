@@ -6,6 +6,8 @@ struct InputCommands
 	bool back = false;
 	bool right = false;
 	bool left = false;
+	bool up = false;
+	bool down = false;
 	bool arrowForward = false;
 	bool arrowBack = false;
 	bool arrowRight = false;
