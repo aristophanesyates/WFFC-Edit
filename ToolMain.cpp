@@ -9,30 +9,14 @@ ToolMain::ToolMain()
 {
 
 	m_currentChunk = 0;		//default value
-	m_selectedObject = 0;	//initial selection ID
 	m_sceneGraph.clear();	//clear the vector for the scenegraph
 	m_databaseConnection = NULL;
-
-	//zero input commands
-	m_toolInputCommands.forward		= false;
-	m_toolInputCommands.back		= false;
-	m_toolInputCommands.left		= false;
-	m_toolInputCommands.right		= false;
-	m_toolInputCommands.mouseHori	= 0.0f;
-	m_toolInputCommands.mouseVert	= 0.0f;
 }
 
 
 ToolMain::~ToolMain()
 {
 	sqlite3_close(m_databaseConnection);		//close the database connection
-}
-
-
-int ToolMain::getCurrentSelectionID()
-{
-
-	return m_selectedObject;
 }
 
 void ToolMain::onActionInitialise(HWND handle, int width, int height)
@@ -43,6 +27,10 @@ void ToolMain::onActionInitialise(HWND handle, int width, int height)
 	
 	m_d3dRenderer.Initialize(handle, m_width, m_height);
 	m_toolHandle = handle;
+	//initialise centre position
+	m_centrePos.x = m_width / 2;
+	m_centrePos.y = m_height / 2;
+	ClientToScreen(m_toolHandle, &m_centrePos);
 	//database connection establish
 	int rc;
 	rc = sqlite3_open_v2("database/test.db",&m_databaseConnection, SQLITE_OPEN_READWRITE, NULL);
@@ -280,170 +268,48 @@ void ToolMain::onActionSaveTerrain()
 
 void ToolMain::Tick(MSG *msg)
 {
-	//do we have a selection
-	//do we have a mode
-	//are we clicking / dragging /releasing
-	//has something changed
-		//update Scenegraph
-		//add to scenegraph
-		//resend scenegraph to Direct X renderer
-
-	//Renderer Update Call
+	//reset delta mouse
 	m_toolInputCommands.mouseHori = 0;
 	m_toolInputCommands.mouseVert = 0;
 	POINT pos;
 	{
+		//get mouse position
 		GetCursorPos(&pos);
 	}
+	//mouse determining camera angle and camera is unfocused:
+	if (!m_toolInputCommands.freeMouse && !m_toolInputCommands.focus)
+	{
+		//clears selection
+		DeselectAll();
+	}
+	//mouse determing camera angle:
 	if (!m_toolInputCommands.freeMouse)
 	{
-		POINT centrePos;
-		{
-			centrePos.x = m_width / 2;
-			centrePos.y = m_height / 2;
-			ClientToScreen(m_toolHandle, &centrePos);
-		}
-		m_toolInputCommands.mouseHori = pos.x - centrePos.x;
-		m_toolInputCommands.mouseVert = pos.y - centrePos.y;
-		SetCursorPos(centrePos.x, centrePos.y);
+		//compute delta mouse and reset cursor
+		m_toolInputCommands.mouseHori = pos.x - m_centrePos.x;
+		m_toolInputCommands.mouseVert = pos.y - m_centrePos.y;
+		SetCursorPos(m_centrePos.x, m_centrePos.y);
 	}
+	//mouse freed
 	else
 	{
-		
+		//selection and picking
 		if (m_toolInputCommands.leftClick)
 		{
 			int clickedObject = m_d3dRenderer.Pick();
-			currentSelection = clickedObject;
-			m_d3dRenderer.DeselectAll();
+			//cursor has hit an object?
 			if (clickedObject != -1)
 			{
-				m_d3dRenderer.Select(clickedObject, true);
+				ToggleSelectObject(clickedObject);
 			}
 		}
-		if (currentSelection != -1)
-		{
-			if (m_toolInputCommands.arrowForward)
-			{
-				DirectX::SimpleMath::Vector3 vector = m_d3dRenderer.CamXZForward();
-				switch (m_transform_mode)
-				{
-				case TRANSFORM_MODE::TRANSLATE:
-					m_sceneGraph.at(currentSelection).posX += vector.x;
-					m_sceneGraph.at(currentSelection).posY += vector.y;
-					m_sceneGraph.at(currentSelection).posZ += vector.z;
-					break;
-				case TRANSFORM_MODE::SCALE:
-					m_sceneGraph.at(currentSelection).scaZ += 1;
-					break;
-				case TRANSFORM_MODE::ROTATE:
-					m_sceneGraph.at(currentSelection).rotZ += 1;
-					break;
-				case TRANSFORM_MODE::NONE:
-					break;					
-				}
-			}
-			if (m_toolInputCommands.arrowRight)
-			{
-				DirectX::SimpleMath::Vector3 vector = m_d3dRenderer.CamRight();
-				switch (m_transform_mode)
-				{
-				case TRANSFORM_MODE::TRANSLATE:
-					m_sceneGraph.at(currentSelection).posX += vector.x;
-					m_sceneGraph.at(currentSelection).posY += vector.y;
-					m_sceneGraph.at(currentSelection).posZ += vector.z;
-					break;
-				case TRANSFORM_MODE::SCALE:
-					m_sceneGraph.at(currentSelection).scaX += 1;
-					break;
-				case TRANSFORM_MODE::ROTATE:
-					m_sceneGraph.at(currentSelection).rotX += 1;
-					break;
-				case TRANSFORM_MODE::NONE:
-					break;
-				}
-			}
-			if (m_toolInputCommands.arrowBack)
-			{
-				DirectX::SimpleMath::Vector3 vector = m_d3dRenderer.CamXZForward();
-				switch (m_transform_mode)
-				{
-				case TRANSFORM_MODE::TRANSLATE:
-					m_sceneGraph.at(currentSelection).posX -= vector.x;
-					m_sceneGraph.at(currentSelection).posY -= vector.y;
-					m_sceneGraph.at(currentSelection).posZ -= vector.z;
-					break;
-				case TRANSFORM_MODE::SCALE:
-					m_sceneGraph.at(currentSelection).scaZ -= 1;
-					break;
-				case TRANSFORM_MODE::ROTATE:
-					m_sceneGraph.at(currentSelection).rotZ -= 1;
-					break;
-				case TRANSFORM_MODE::NONE:
-					break;
-				}
-			}
-			if (m_toolInputCommands.arrowLeft)
-			{
-				DirectX::SimpleMath::Vector3 vector = m_d3dRenderer.CamRight();
-				switch (m_transform_mode)
-				{
-				case TRANSFORM_MODE::TRANSLATE:
-					m_sceneGraph.at(currentSelection).posX -= vector.x;
-					m_sceneGraph.at(currentSelection).posY -= vector.y;
-					m_sceneGraph.at(currentSelection).posZ -= vector.z;
-					break;
-				case TRANSFORM_MODE::SCALE:
-					m_sceneGraph.at(currentSelection).scaX -= 1;
-					break;
-				case TRANSFORM_MODE::ROTATE:
-					m_sceneGraph.at(currentSelection).rotX -= 1;
-					break;
-				case TRANSFORM_MODE::NONE:
-					break;
-				}
-			}
-			if (m_toolInputCommands.pageUp)
-			{
-				switch (m_transform_mode)
-				{
-				case TRANSFORM_MODE::TRANSLATE:
-					m_sceneGraph.at(currentSelection).posY += 1;
-					break;
-				case TRANSFORM_MODE::SCALE:
-					m_sceneGraph.at(currentSelection).scaY += 1;
-					break;
-				case TRANSFORM_MODE::ROTATE:
-					m_sceneGraph.at(currentSelection).rotY += 1;
-					break;
-				case TRANSFORM_MODE::NONE:
-					break;
-				}
-			}
-			if (m_toolInputCommands.pageDown)
-			{
-				switch (m_transform_mode)
-				{
-				case TRANSFORM_MODE::TRANSLATE:
-					m_sceneGraph.at(currentSelection).posY -= 1;
-					break;
-				case TRANSFORM_MODE::SCALE:
-					m_sceneGraph.at(currentSelection).scaY -= 1;
-					break;
-				case TRANSFORM_MODE::ROTATE:
-					m_sceneGraph.at(currentSelection).rotY -= 1;
-					break;
-				case TRANSFORM_MODE::NONE:
-					break;
-				}
-			}
-		}
+		//transform selected objects according to mode and keys pressed
+		Transform();
 	}
-	m_d3dRenderer.Tick(&m_toolInputCommands);
+	m_d3dRenderer.Tick(&m_toolInputCommands, &m_selectedObjects);
+	//reset leftclick
 	m_toolInputCommands.leftClick = false;
-	if (currentSelection != -1)
-	{
-		m_d3dRenderer.UpdateDisplayList(currentSelection, &m_sceneGraph);
-	}
+	UpdateDisplayList();
 }
 
 void ToolMain::UpdateInput(MSG * msg)
@@ -475,58 +341,70 @@ void ToolMain::UpdateInput(MSG * msg)
 		break;
 
 	}
-	//here we update all the actual app functionality that we want.  This information will either be used int toolmain, or sent down to the renderer (Camera movement etc
+	//free mouse - shift
+
+	if (m_keyArray[16])
+	{
+		m_toolInputCommands.freeMouse = true;
+	}
+	else
+	{
+		m_toolInputCommands.freeMouse = false;
+	}
+	
+	//focus camera on selected objects - ctrl
+
+	if (m_keyArray[17])
+	{
+		m_toolInputCommands.focus = true;
+	}
+	else
+	{
+		m_toolInputCommands.focus = false;
+	}
 	//WASD movement
 	// 16 = shift
 	// 17 = control
-	if (m_keyArray['1'] && !m_toolInputCommands.freeMouse)
-	{
-		m_transform_mode = TRANSFORM_MODE::TRANSLATE;
-	}
-	if (m_keyArray['2'] && !m_toolInputCommands.freeMouse)
-	{
-		m_transform_mode = TRANSFORM_MODE::SCALE;
-	}
-	if (m_keyArray['3'] && !m_toolInputCommands.freeMouse)
-	{
-		m_transform_mode = TRANSFORM_MODE::ROTATE;
-	}
-	if (m_keyArray['W'] && !m_toolInputCommands.freeMouse)
+
+	//WASD QE
+
+	if (m_keyArray['W'] && CameraCanMove())
 	{
 		m_toolInputCommands.forward = true;
 	}
 	else m_toolInputCommands.forward = false;
 
-	if (m_keyArray['S'] && !m_toolInputCommands.freeMouse)
+	if (m_keyArray['S'] && CameraCanMove())
 	{
 		m_toolInputCommands.back = true;
 	}
 	else m_toolInputCommands.back = false;
 
-	if (m_keyArray['A'] && !m_toolInputCommands.freeMouse)
+	if (m_keyArray['A'] && CameraCanMove())
 	{
 		m_toolInputCommands.left = true;
 	}
 	else m_toolInputCommands.left = false;
 
-	if (m_keyArray['D'] && !m_toolInputCommands.freeMouse)
+	if (m_keyArray['D'] && CameraCanMove())
 	{
 		m_toolInputCommands.right = true;
 	}
 	else m_toolInputCommands.right = false;
 
-	if (m_keyArray['Q'] && !m_toolInputCommands.freeMouse)
+	if (m_keyArray['Q'] && CameraCanMove())
 	{
 		m_toolInputCommands.down = true;
 	}
 	else m_toolInputCommands.down = false;
 
-	if (m_keyArray['E'] && !m_toolInputCommands.freeMouse)
+	if (m_keyArray['E'] && CameraCanMove())
 	{
 		m_toolInputCommands.up = true;
 	}
 	else m_toolInputCommands.up = false;
 
+	//rotation - arrow keys + page up & page down
 	if (m_keyArray[38])
 	{
 		m_toolInputCommands.arrowForward = true;
@@ -562,18 +440,192 @@ void ToolMain::UpdateInput(MSG * msg)
 		m_toolInputCommands.pageDown = true;
 	}
 	else m_toolInputCommands.pageDown = false;
-	//rotation
-	// offset on the x 13 + 100, y 91 + 100 (snapping to centre)
-	if (m_keyArray[16])
+}
+
+void ToolMain::ToggleSelectObject(int objectId)
+{
+	int numberOfObjects = m_objectSelected.size();
+	if (!m_objectSelected[objectId])
 	{
-		m_toolInputCommands.freeMouse = true;
+		//object unselected, select object
+		m_d3dRenderer.Highlight(objectId, true);
+		m_objectSelected[objectId] = true;
+		if (m_objectSelected.size() > numberOfObjects)
+		{
+			//new element, add to vector
+			m_selectedObjects.push_back(&m_sceneGraph.at(objectId));
+		}
 	}
 	else
 	{
-		m_toolInputCommands.freeMouse = false;
+		//object selected, deselect object
+		m_d3dRenderer.Highlight(objectId, false);
+		m_objectSelected[objectId] = false;
 	}
+}
 
-	//WASD
+void ToolMain::Deselect(int objectId)
+{
+	m_d3dRenderer.Highlight(objectId, false);
+	m_objectSelected[objectId] = false;
+}
+
+void ToolMain::DeselectAll()
+{
+	m_selectedObjects.clear();
+	m_objectSelected.clear();
+	m_d3dRenderer.DeselectAll();
+}
+
+void ToolMain::Transform()
+{
+	// iterate through selected objects map, skipping unselected objects
+	SceneObject * object = nullptr;
+	for (auto selectedObject : m_objectSelected)
+	{
+		bool notSelected = !selectedObject.second;
+		int objectID = selectedObject.first;
+		if (notSelected)
+		{
+			continue;
+		}
+		object = &m_sceneGraph.at(objectID);
+		
+		//do transforms
+		if (m_toolInputCommands.arrowForward)
+		{
+			DirectX::SimpleMath::Vector3 vector = m_d3dRenderer.CamXZForward();
+			switch (m_transform_mode)
+			{
+			case TRANSFORM_MODE::TRANSLATE:
+				object->posX += vector.x;
+				object->posY += vector.y;
+				object->posZ += vector.z;
+				break;
+			case TRANSFORM_MODE::SCALE:
+				object->scaZ += 1;
+				break;
+			case TRANSFORM_MODE::ROTATE:
+				object->rotZ += 1;
+				break;
+			case TRANSFORM_MODE::NONE:
+				break;
+			}
+		}
+		if (m_toolInputCommands.arrowRight)
+		{
+			DirectX::SimpleMath::Vector3 vector = m_d3dRenderer.CamRight();
+			switch (m_transform_mode)
+			{
+			case TRANSFORM_MODE::TRANSLATE:
+				object->posX += vector.x;
+				object->posY += vector.y;
+				object->posZ += vector.z;
+				break;
+			case TRANSFORM_MODE::SCALE:
+				object->scaX += 1;
+				break;
+			case TRANSFORM_MODE::ROTATE:
+				object->rotX += 1;
+				break;
+			case TRANSFORM_MODE::NONE:
+				break;
+			}
+		}
+		if (m_toolInputCommands.arrowBack)
+		{
+			DirectX::SimpleMath::Vector3 vector = m_d3dRenderer.CamXZForward();
+			switch (m_transform_mode)
+			{
+			case TRANSFORM_MODE::TRANSLATE:
+				object->posX -= vector.x;
+				object->posY -= vector.y;
+				object->posZ -= vector.z;
+				break;
+			case TRANSFORM_MODE::SCALE:
+				object->scaZ -= 1;
+				break;
+			case TRANSFORM_MODE::ROTATE:
+				object->rotZ -= 1;
+				break;
+			case TRANSFORM_MODE::NONE:
+				break;
+			}
+		}
+		if (m_toolInputCommands.arrowLeft)
+		{
+			DirectX::SimpleMath::Vector3 vector = m_d3dRenderer.CamRight();
+			switch (m_transform_mode)
+			{
+			case TRANSFORM_MODE::TRANSLATE:
+				object->posX -= vector.x;
+				object->posY -= vector.y;
+				object->posZ -= vector.z;
+				break;
+			case TRANSFORM_MODE::SCALE:
+				object->scaX -= 1;
+				break;
+			case TRANSFORM_MODE::ROTATE:
+				object->rotX -= 1;
+				break;
+			case TRANSFORM_MODE::NONE:
+				break;
+			}
+		}
+		if (m_toolInputCommands.pageUp)
+		{
+			switch (m_transform_mode)
+			{
+			case TRANSFORM_MODE::TRANSLATE:
+				object->posY += 1;
+				break;
+			case TRANSFORM_MODE::SCALE:
+				object->scaY += 1;
+				break;
+			case TRANSFORM_MODE::ROTATE:
+				object->rotY += 1;
+				break;
+			case TRANSFORM_MODE::NONE:
+				break;
+			}
+		}
+		if (m_toolInputCommands.pageDown)
+		{
+			switch (m_transform_mode)
+			{
+			case TRANSFORM_MODE::TRANSLATE:
+				object->posY -= 1;
+				break;
+			case TRANSFORM_MODE::SCALE:
+				object->scaY -= 1;
+				break;
+			case TRANSFORM_MODE::ROTATE:
+				object->rotY -= 1;
+				break;
+			case TRANSFORM_MODE::NONE:
+				break;
+			}
+		}
+	}
+}
+
+void ToolMain::UpdateDisplayList()
+{
+	// iterate through selected objects map, skipping unselected objects
+	for (auto selectedObject : m_objectSelected)
+	{
+		bool notSelected = !selectedObject.second;
+		int objectID = selectedObject.first;
+		if (notSelected)
+		{
+			continue;
+		}
+		else
+		{
+			//update object in display list
+			m_d3dRenderer.UpdateDisplayList(objectID, &m_sceneGraph);
+		}
+	}
 }
 
 void ToolMain::SetTranslateMode()

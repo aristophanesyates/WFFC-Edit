@@ -29,7 +29,7 @@ public:
 	void SetGridState(bool state);
 
 	// Basic game loop
-	void Tick(InputCommands * Input);
+	void Tick(InputCommands * Input, std::vector<SceneObject *> * selectedObjects);
 	void Render();
 
 	// Rendering helpers
@@ -51,10 +51,12 @@ public:
 	void UpdateDisplayList(int object_id, std::vector<SceneObject> * SceneGraph); //note vector passed by reference 
 	void BuildDisplayChunk(ChunkObject *SceneChunk);
 	void SaveDisplayChunk(ChunkObject *SceneChunk);	//saves geometry et al
-	void ClearDisplayList();
+	//get the colliding object id with the mouse cursor
 	int Pick();
+	//dehighlight all objects
 	void DeselectAll();
-	void Select(int object_id, bool highlighted);
+	//highlight object with matching id
+	void Highlight(int object_id, bool highlighted);
 	DirectX::SimpleMath::Vector3 CamXZForward();
 	DirectX::SimpleMath::Vector3 CamRight();
 
@@ -73,9 +75,10 @@ private:
 	void XM_CALLCONV DrawGrid(DirectX::FXMVECTOR xAxis, DirectX::FXMVECTOR yAxis, DirectX::FXMVECTOR origin, size_t xdivs, size_t ydivs, DirectX::GXMVECTOR color);
 
 	//tool specific
-	std::vector<DisplayObject>			m_displayList;
-	DisplayChunk						m_displayChunk;
-	InputCommands						m_InputCommands;
+	std::vector<DisplayObject>				m_displayList;
+	DisplayChunk							m_displayChunk;
+	InputCommands							m_InputCommands;
+	std::vector<SceneObject *>				m_selectedObjects;
 
 	//functionality
 

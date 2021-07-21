@@ -92,10 +92,12 @@ void Game::SetGridState(bool state)
 
 #pragma region Frame Update
 // Executes the basic game loop.
-void Game::Tick(InputCommands *Input)
+void Game::Tick(InputCommands *Input, std::vector<SceneObject *> * selectedObjects)
 {
 	//copy over the input commands so we have a local version to use elsewhere.
 	m_InputCommands = *Input;
+	//copy over vector of selected object pointers
+	m_selectedObjects = *selectedObjects;
     m_timer.Tick([&]()
     {
         Update(m_timer);
@@ -168,7 +170,7 @@ void Game::DeselectAll()
 	}
 }
 
-void Game::Select(int object_id, bool highlighted)
+void Game::Highlight(int object_id, bool highlighted)
 {
 	m_displayList.at(object_id).setHighlight(highlighted);
 }
@@ -191,11 +193,14 @@ DirectX::SimpleMath::Vector3 Game::CamRight()
 // Updates the world.
 void Game::Update(DX::StepTimer const& timer)
 {
-	//TODO  any more complex than this, and the camera should be abstracted out to somewhere else
-	//camera motion is on a plane, so kill the 7 component of the look direction
-	cam.Update(m_InputCommands);
 	
-
+	Vector3 lookAt;
+	if (m_InputCommands.focus)
+	{
+		//change camera direction to face selected objects
+		cam.Focus(m_selectedObjects);
+	}
+	cam.Update(m_InputCommands);
 	//apply camera vectors
     m_view = Matrix::CreateLookAt(cam.GetPosition(), cam.GetLookat(), Vector3::UnitY);
 
