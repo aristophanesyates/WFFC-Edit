@@ -30,6 +30,8 @@ void ToolMain::onActionInitialise(HWND handle, int width, int height)
 	//initialise centre position
 	m_centrePos.x = m_width / 2;
 	m_centrePos.y = m_height / 2;
+	pos.x = m_width / 2;
+	pos.y = m_height / 2;
 	ClientToScreen(m_toolHandle, &m_centrePos);
 	//database connection establish
 	int rc;
@@ -268,27 +270,16 @@ void ToolMain::onActionSaveTerrain()
 
 void ToolMain::Tick(MSG *msg)
 {
-	//reset delta mouse
-	m_toolInputCommands.mouseHori = 0;
-	m_toolInputCommands.mouseVert = 0;
-	POINT pos;
+	//mouse determing camera angle:
+	if (!m_toolInputCommands.freeMouse)
 	{
-		//get mouse position
-		GetCursorPos(&pos);
+		SetCursorPos(m_centrePos.x, m_centrePos.y);
 	}
 	//mouse determining camera angle and camera is unfocused:
 	if (!m_toolInputCommands.freeMouse && !m_toolInputCommands.focus)
 	{
 		//clears selection
 		DeselectAll();
-	}
-	//mouse determing camera angle:
-	if (!m_toolInputCommands.freeMouse)
-	{
-		//compute delta mouse and reset cursor
-		m_toolInputCommands.mouseHori = pos.x - m_centrePos.x;
-		m_toolInputCommands.mouseVert = pos.y - m_centrePos.y;
-		SetCursorPos(m_centrePos.x, m_centrePos.y);
 	}
 	//mouse freed
 	else
@@ -326,17 +317,27 @@ void ToolMain::UpdateInput(MSG * msg)
 		break;
 
 	case WM_MOUSEMOVE:
+		//get mouse coordinates
 		m_toolInputCommands.mouseX = GET_X_LPARAM(msg->lParam);
 		m_toolInputCommands.mouseY = GET_Y_LPARAM(msg->lParam);
+		GetCursorPos(&pos);
+		//reset delta mouse
+		m_toolInputCommands.mouseHori = 0;
+		m_toolInputCommands.mouseVert = 0;
+		//mouse determing camera angle:
+		if (!m_toolInputCommands.freeMouse && !m_toolInputCommands.focus)
+		{
+			//compute delta mouse
+			m_toolInputCommands.mouseHori = pos.x - m_centrePos.x;
+			m_toolInputCommands.mouseVert = pos.y - m_centrePos.y;
+		}
 		break;
 
-	case WM_LBUTTONDOWN:	//mouse button down,  you will probably need to check when its up too
-		//set some flag for the mouse button in inputcommands
+	case WM_LBUTTONDOWN:
 		m_toolInputCommands.leftClick = true;
 		break;
 
-	case WM_LBUTTONUP:	//mouse button down,  you will probably need to check when its up too
-		//set some flag for the mouse button in inputcommands
+	case WM_LBUTTONUP:
 		m_toolInputCommands.leftClick = false;
 		break;
 

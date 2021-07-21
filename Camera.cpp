@@ -64,7 +64,7 @@ void Camera::Init(float movespeed, float camRotRate)
 	m_camPosition = DirectX::SimpleMath::Vector3{ 0, 0, 0 };
 	m_camOrientation = DirectX::SimpleMath::Vector2{ 0, 0};
 	m_camLookAt = DirectX::SimpleMath::Vector3{ 0, 0, 0 };
-	m_camLookDirection = DirectX::SimpleMath::Vector3{ 0, 0, 0 };
+	m_camLookDirection = DirectX::SimpleMath::Vector3{ 0, 0, 1 };
 	m_camRight = DirectX::SimpleMath::Vector3{ 0, 0, 0 };
 
 	m_movespeed = movespeed;

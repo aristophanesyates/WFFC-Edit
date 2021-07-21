@@ -195,7 +195,7 @@ void Game::Update(DX::StepTimer const& timer)
 {
 	
 	Vector3 lookAt;
-	if (m_InputCommands.focus)
+	if (m_InputCommands.focus && m_selectedObjects.size() > 0)
 	{
 		//change camera direction to face selected objects
 		cam.Focus(m_selectedObjects);

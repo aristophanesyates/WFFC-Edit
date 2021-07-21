@@ -48,6 +48,7 @@ private:	//methods
 	//iterate through map m_objectSelected, and updates the display list using the selected object's id
 	void UpdateDisplayList();
 private:	//variables
+	POINT pos;
 	enum class TRANSFORM_MODE {TRANSLATE, SCALE, ROTATE, NONE};
 	TRANSFORM_MODE m_transform_mode = TRANSFORM_MODE::NONE;
 	std::map<int, bool>					m_objectSelected;	//is object [id] selected?
