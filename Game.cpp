@@ -26,7 +26,7 @@ Game::Game()
 	
 	//initialise camera
 	cam.Init(0.30f, 0.5f);
-	cam.SetPosition(0.0f, 3.7f, -3.5f);
+	cam.SetPosition(0.0f, 3.7f, 3.5f);
 
 }
 
@@ -118,21 +118,21 @@ void Game::Tick(InputCommands *Input, std::vector<SceneObject *> * selectedObjec
 
 int Game::Pick()
 {
+	//initialise to big value, so it is overwritten with smaller value, choosing closest target
+	float distance = 99999999999999999999999999999999999999.f;
 	int selected_object_ID = -1;
 	float pickedDistance = 0;
 	//setup near and far. 
 	const XMVECTOR nearSource = XMVectorSet(m_InputCommands.mouseX, m_InputCommands.mouseY, 0.0f, 1.0f);
 	const XMVECTOR farSource = XMVectorSet(m_InputCommands.mouseX, m_InputCommands.mouseY, 1.0f, 1.0f);
 
-	// initialise to big value, so it is overwritten with smaller value, choosing closest target
-	float distance = 99999999999999999999999999999999999999.f; 
+	//iterate through ever object in display list
 	for (int i = 0; i < m_displayList.size(); i++)
 	{
+		//create object transform
 		const XMVECTORF32 scale = { m_displayList[i].m_scale.x,	m_displayList[i].m_scale.y,	m_displayList[i].m_scale.z };
 		const XMVECTORF32 translate = { m_displayList[i].m_position.x, m_displayList[i].m_position.y, m_displayList[i].m_position.z };
-
 		XMVECTOR rotate = Quaternion::CreateFromYawPitchRoll(m_displayList[i].m_orientation.y *3.1415 / 180, m_displayList[i].m_orientation.x *3.1415 / 180, m_displayList[i].m_orientation.z *3.1415 / 180);
-
 		XMMATRIX local = m_world * XMMatrixTransformation(g_XMZero, Quaternion::Identity, scale, g_XMZero, rotate, translate);
 
 		//unprojectpoints onto the near and far planes.

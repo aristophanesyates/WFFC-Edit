@@ -363,11 +363,8 @@ void ToolMain::UpdateInput(MSG * msg)
 	{
 		m_toolInputCommands.focus = false;
 	}
-	//WASD movement
-	// 16 = shift
-	// 17 = control
 
-	//WASD QE
+	//movement - WASD QE
 
 	if (m_keyArray['W'] && CameraCanMove())
 	{

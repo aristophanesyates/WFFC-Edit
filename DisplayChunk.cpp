@@ -91,7 +91,7 @@ void DisplayChunk::LoadHeightMap(std::shared_ptr<DX::DeviceResources>  DevResour
 
 	// Open The File In Read / Binary Mode.
 
-	pFile = fopen(m_heightmap_path.c_str(), "rb");
+	fopen_s(&pFile, m_heightmap_path.c_str(), "rb");
 	// Check To See If We Found The File And Could Open It
 	if (pFile == NULL)
 	{
@@ -149,7 +149,7 @@ void DisplayChunk::SaveHeightMap()
 	FILE *pFile = NULL;
 
 	// Open The File In Read / Binary Mode.
-	pFile = fopen(m_heightmap_path.c_str(), "wb+");;
+	fopen_s(&pFile, m_heightmap_path.c_str(), "wb+");;
 	// Check To See If We Found The File And Could Open It
 	if (pFile == NULL)
 	{
